@@ -4,6 +4,8 @@ import React, { Component } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import WeekdayPicker from "react-native-weekday-picker";
+import FlashMessage from "react-native-flash-message";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 export default class SetLocations extends Component {
 	constructor(props) {
@@ -12,43 +14,10 @@ export default class SetLocations extends Component {
 		this.state = {
 			homeLocation: "",
 			workLocation: "",
-			savedHL: "",
-			savedWL: "",
-			timeOne: new Date(),
-			timeTwo: new Date(),
-			showPickerOne: false,
-			showPickerTwo: false,
-			selectedItems: [],
-			days: { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 0, 0: 0 },
 		};
 	}
 
-	componentDidMount() {
-		getLocations().then((locations) => {
-			this.setState({ savedHL: locations.savedHL, savedWL: locations.savedWL });
-		});
-	}
-
-	updateLocations() {
-		if (this.state.homeLocation) {
-			this.setState({ savedHL: this.state.homeLocation, homeLocation: "" });
-		}
-		if (this.state.workLocation) {
-			this.setState({ savedWL: this.state.workLocation, workLocation: "" });
-		}
-		storeLocations({
-			savedHL: this.state.savedHL,
-			savedWL: this.state.savedWL,
-		}).then(() => console.log("Saved"));
-	}
-
-	onSelectedItemsChange = (selectedItems) => {
-		this.setState({ selectedItems });
-		console.log("Selected Items: ", selectedItems);
-	};
-
 	render() {
-		const { selectedItems } = this.state;
 		return (
 			<View style={styles.container}>
 				<Text>Please enter your home location: </Text>
@@ -57,10 +26,6 @@ export default class SetLocations extends Component {
 					onChangeText={(text) => this.setState({ homeLocation: text })}
 					style={styles.input}
 					placeholder="Postcode"
-				/>
-				<Button
-					onPress={() => this.setState({ showPickerOne: true })}
-					title="Set leaving house time"
 				/>
 				<Text />
 				<Text>Please enter your work location: </Text>
@@ -71,74 +36,33 @@ export default class SetLocations extends Component {
 					placeholder="Postcode"
 				/>
 				<Button
-					onPress={() => this.setState({ showPickerTwo: true })}
-					title="Set leaving work time"
+					title="Update"
+					onPress={() => storeLocations(this.state, this.props)}
 				/>
-				<Text />
-				<Text>Select workdays:</Text>
-
-				<WeekdayPicker
-					days={this.state.days}
-					onChange={(days) => this.setState({ days: days })}
-				/>
-				<Text />
-				<Button
-					onPress={() => this.updateLocations()}
-					title="Update Changes"
-					style={styles.spacerOne}
-				/>
-
-				<Text style={styles.spacerOne}>Current Locations: </Text>
-				<Text>Home: {this.state.savedHL}</Text>
-				<Text>Work: {this.state.savedWL}</Text>
-				<Text style={styles.spacerOne}>Current Times: </Text>
-				<Text>
-					Home: {this.state.timeOne.getHours()}:
-					{this.state.timeOne.getMinutes()}
-				</Text>
-				<Text>
-					Work: {this.state.timeTwo.getHours()}:
-					{this.state.timeTwo.getMinutes()}
-				</Text>
-
-				{this.state.showPickerOne && (
-					<DateTimePicker
-						value={this.state.timeOne}
-						mode="time"
-						onChange={(e, time) => {
-							this.setState({ showPickerOne: false });
-							this.setState({ timeOne: time });
-						}}
-					/>
-				)}
-				{this.state.showPickerTwo && (
-					<DateTimePicker
-						value={this.state.timeTwo}
-						mode="time"
-						onChange={(e, time) => {
-							this.setState({ showPickerTwo: false });
-							this.setState({ timeTwo: time });
-						}}
-					/>
-				)}
 				<StatusBar style="auto" />
+				<FlashMessage position="top" />
 			</View>
 		);
 	}
 }
 
-const storeLocations = async (value) => {
-	const jsonValue = JSON.stringify(value);
-	await AsyncStorage.setItem("saved_locations", jsonValue, (e) => {
-		if (e) {
-			console.log(e);
+const storeLocations = async (state, props) => {
+	const data = {
+		homeLocation: state.homeLocation,
+		workLocation: state.workLocation,
+	};
+	const stringData = JSON.stringify(data);
+	await AsyncStorage.setItem("@user_input_locations", stringData, (error) => {
+		if (error) {
+			showMessage({
+				message: error.message,
+			});
+		} else {
+			showMessage({
+				message: "Locations updated successfully",
+			});
 		}
 	});
-};
-
-const getLocations = async () => {
-	const jsonValue = await AsyncStorage.getItem("saved_locations");
-	return jsonValue != null ? JSON.parse(jsonValue) : null;
 };
 
 const styles = StyleSheet.create({
