@@ -23,7 +23,8 @@
     "react-native-multiple-select": "^0.5.7",
     "react-native-multiple-select-expo": "^0.4.5",
     "react-native-sectioned-multi-select": "^0.9.1",
-    "react-native-web": "0.17.1"
+    "react-native-web": "0.17.1",
+    "react-native-weekday-picker": "^0.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

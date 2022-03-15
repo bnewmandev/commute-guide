@@ -3,77 +3,8 @@ import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
 import React, { Component } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import SectionedMultiSelect from "react-native-sectioned-multi-select";
-import MultiSelect from "react-native-multiple-select";
+import WeekdayPicker from "react-native-weekday-picker";
 import { MaterialIcons } from "@expo/vector-icons";
-
-const days = [
-	{
-		name: "Monday",
-		id: 0,
-	},
-	{
-		name: "Tuesday",
-		id: 1,
-	},
-	{
-		name: "Wednesday",
-		id: 2,
-	},
-	{
-		name: "Thursday",
-		id: 3,
-	},
-	{
-		name: "Friday",
-		id: 4,
-	},
-	{
-		name: "Saturday",
-		id: 5,
-	},
-	{
-		name: "Sunday",
-		id: 6,
-	},
-];
-
-const items = [
-	{
-		name: "Days of Week",
-		id: 100,
-		children: [
-			{
-				name: "Monday",
-				id: 0,
-			},
-			{
-				name: "Tuesday",
-				id: 1,
-			},
-			{
-				name: "Wednesday",
-				id: 2,
-			},
-			{
-				name: "Thursday",
-				id: 3,
-			},
-			{
-				name: "Friday",
-				id: 4,
-			},
-			{
-				name: "Saturday",
-				id: 5,
-			},
-			{
-				name: "Sunday",
-				id: 6,
-			},
-		],
-	},
-];
 
 export default class App extends Component {
 	constructor(props) {
@@ -89,6 +20,7 @@ export default class App extends Component {
 			showPickerOne: false,
 			showPickerTwo: false,
 			selectedItems: [],
+			days: { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 0, 0: 0 },
 		};
 	}
 
@@ -144,7 +76,13 @@ export default class App extends Component {
 					title="Set leaving work time"
 				/>
 				<Text />
+				<Text>Select workdays:</Text>
 
+				<WeekdayPicker
+					days={this.state.days}
+					onChange={(days) => this.setState({ days: days })}
+				/>
+				<Text />
 				<Button
 					onPress={() => this.updateLocations()}
 					title="Update Changes"
@@ -184,39 +122,6 @@ export default class App extends Component {
 						}}
 					/>
 				)}
-				<SectionedMultiSelect
-					items={days}
-					IconRenderer={MaterialIcons}
-					uniqueKey={"id"}
-					// subKey={"children"}
-					selectText={"Select Days"}
-					showDropDowns={true}
-					readOnlyHeadings={true}
-					onSelectedItemsChange={this.onSelectedItemsChange}
-					selectedItems={this.state.selectedItems}
-					hideSearch={true}
-				/>
-				<View style={styles.multiSelectContainer}>
-					<MultiSelect
-						items={days}
-						uniqueKey="id"
-						onSelectedItemsChange={this.onSelectedItemsChange}
-						selectedItems={selectedItems}
-						selectText="Pick Items"
-						searchInputPlaceholderText="Search Items..."
-						onChangeInput={(text) => console.warn(text)}
-						tagRemoveIconColor="#CCC"
-						tagBorderColor="#CCC"
-						tagTextColor="#CCC"
-						selectedItemTextColor="#CCC"
-						selectedItemIconColor="#CCC"
-						itemTextColor="#000"
-						displayKey="name"
-						searchInputStyle={{ color: "#CCC" }}
-						submitButtonColor="#CCC"
-						submitButtonText="Submit"
-					/>
-				</View>
 				<StatusBar style="auto" />
 			</View>
 		);
