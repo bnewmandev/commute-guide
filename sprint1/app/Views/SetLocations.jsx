@@ -4,22 +4,27 @@ import React, { Component } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FlashMessage from "react-native-flash-message";
 import { showMessage } from "react-native-flash-message";
+import * as Location from "expo-location";
 
 export default class SetLocations extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			homeLocation: "",
-			workLocation: "",
+			homeLocation: null,
+			workLocation: null,
+			granted: false,
+			location: null,
+			mapRef: React.createRef(),
+			errorMsg: null,
 		};
 	}
 
 	componentDidMount() {
 		fetchLocations().then((data) => {
 			this.setState({
-				homeLocation: data.homeLocation,
-				workLocation: data.workLocation,
+				homeLocation: data[0],
+				workLocation: data[1],
 			});
 		});
 	}
@@ -27,22 +32,73 @@ export default class SetLocations extends Component {
 	render() {
 		return (
 			<View style={styles.container}>
-				<Text>Please enter your home location: </Text>
-				<TextInput
-					value={this.state.homeLocation}
-					onChangeText={(text) => this.setState({ homeLocation: text })}
-					style={styles.input}
-					placeholder="Postcode"
-				/>
+				<View style={styles.spacerOne}>
+					<Button
+						title="Set Current Location as Home"
+						onPress={async () => {
+							let { status } =
+								await Location.requestForegroundPermissionsAsync();
+							if (status !== "granted") {
+								this.setState({
+									errorMsg: "Permission to access location was denied",
+								});
+								return;
+							}
+
+							let location = await Location.getCurrentPositionAsync({});
+
+							await AsyncStorage.setItem(
+								"@user_input_home_location",
+								JSON.stringify(location.coords),
+								(error) => {
+									if (error) {
+										showMessage({
+											message: error.message,
+										});
+									} else {
+										showMessage({
+											message: "Home location updated successfully",
+										});
+									}
+								}
+							);
+						}}
+					/>
+				</View>
+				<View>
+					<Button
+						title="Set Current Location as Work"
+						onPress={async () => {
+							let { status } =
+								await Location.requestForegroundPermissionsAsync();
+							if (status !== "granted") {
+								this.setState({
+									errorMsg: "Permission to access location was denied",
+								});
+								return;
+							}
+							let location = await Location.getCurrentPositionAsync({});
+
+							await AsyncStorage.setItem(
+								"@user_input_work_location",
+								JSON.stringify(location.coords),
+								(error) => {
+									if (error) {
+										showMessage({
+											message: error.message,
+										});
+									} else {
+										showMessage({
+											message: "Work location updated successfully",
+										});
+									}
+								}
+							);
+						}}
+					/>
+				</View>
+
 				<Text />
-				<Text>Please enter your work location: </Text>
-				<TextInput
-					value={this.state.workLocation}
-					onChangeText={(text) => this.setState({ workLocation: text })}
-					style={styles.input}
-					placeholder="Postcode"
-				/>
-				<Button title="Update" onPress={() => storeLocations(this.state)} />
 				<StatusBar style="auto" />
 				<FlashMessage position="top" />
 			</View>
@@ -50,28 +106,14 @@ export default class SetLocations extends Component {
 	}
 }
 
-const storeLocations = async (state) => {
-	const data = {
-		homeLocation: state.homeLocation,
-		workLocation: state.workLocation,
-	};
-	const stringData = JSON.stringify(data);
-	await AsyncStorage.setItem("@user_input_locations", stringData, (error) => {
-		if (error) {
-			showMessage({
-				message: error.message,
-			});
-		} else {
-			showMessage({
-				message: "Locations updated successfully",
-			});
-		}
-	});
-};
-
 const fetchLocations = async () => {
-	const stringData = await AsyncStorage.getItem("@user_input_locations");
-	return stringData != null ? JSON.parse(stringData) : null;
+	const homeLocData = await AsyncStorage.getItem("@user_input_home_location");
+	const homeLoc = homeLocData != null ? JSON.parse(homeLocData) : null;
+
+	const workLocData = await AsyncStorage.getItem("@user_input_work_location");
+	const workLoc = workLocData != null ? JSON.parse(workLocData) : null;
+
+	return [homeLoc, workLoc];
 };
 
 const styles = StyleSheet.create({
@@ -91,8 +133,8 @@ const styles = StyleSheet.create({
 	},
 
 	spacerOne: {
-		marginTop: 30,
-		marginBottom: 10,
+		marginTop: 20,
+		marginBottom: 20,
 	},
 	multiSelectContainer: {
 		height: 200,

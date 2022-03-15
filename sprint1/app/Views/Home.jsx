@@ -23,8 +23,8 @@ export default class Home extends Component {
 				</View>
 				<View style={styles.button}>
 					<Button
-						title="Location Set Map (TEMP)"
-						onPress={() => this.props.navigation.navigate("Location Set Map")}
+						title="Saved Locations"
+						onPress={() => this.props.navigation.navigate("Saved Locations")}
 					/>
 				</View>
 			</View>

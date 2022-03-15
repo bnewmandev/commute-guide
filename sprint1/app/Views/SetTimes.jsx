@@ -36,7 +36,7 @@ export default class SetTimes extends Component {
 			<View style={styles.container}>
 				<Button
 					onPress={() => this.setState({ showPickerOne: true })}
-					title="Set leaving house time"
+					title="Set arriving work time"
 				/>
 				<Text />
 				<Button

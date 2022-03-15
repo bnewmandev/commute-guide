@@ -1,6 +1,6 @@
 import React from "react";
 import { Component } from "react";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, LatLng } from "react-native-maps";
 import {
 	Button,
 	Dimensions,
@@ -9,8 +9,10 @@ import {
 	TouchableOpacity,
 } from "react-native";
 import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { showMessage } from "react-native-flash-message";
 
-export default class LocationSetMap extends Component {
+export default class MapSavedLocations extends Component {
 	constructor(props) {
 		super(props);
 
@@ -19,28 +21,34 @@ export default class LocationSetMap extends Component {
 			location: null,
 			mapRef: React.createRef(),
 			errorMsg: null,
+			workLoc: { latitude: 0, longitude: 0 },
+			homeLoc: { latitude: 0, longitude: 0 },
 		};
 	}
 
 	componentDidMount() {
-		// (async () => {
-		// 	let { status } = await Location.requestForegroundPermissionsAsync();
-		// 	if (status !== "granted") {
-		// 		this.setState({ errorMsg: "Permission to access location was denied" });
-		// 		return;
-		// 	}
-		//
-		// 	let location = await Location.getCurrentPositionAsync({});
-		// 	console.log(location);
-		// 	this.setState({ location: location });
-		// })();
-	}
+		(async () => {
+			const homeLocData = await AsyncStorage.getItem(
+				"@user_input_home_location"
+			);
+			const homeLoc = homeLocData != null ? JSON.parse(homeLocData) : null;
 
-	goToMyLocation() {
-		const coords = this.state.location.coords;
-		this.state.mapRef.current.animateCamera({
-			center: { latitude: coords.latitude, longitude: coords.longitude },
-		});
+			const workLocData = await AsyncStorage.getItem(
+				"@user_input_work_location"
+			);
+			const workLoc = workLocData != null ? JSON.parse(workLocData) : null;
+
+			this.setState({
+				homeLoc: {
+					latitude: homeLoc.latitude,
+					longitude: homeLoc.longitude,
+				},
+				workLoc: {
+					latitude: workLoc.latitude,
+					longitude: workLoc.longitude,
+				},
+			});
+		})();
 	}
 
 	render() {
@@ -52,10 +60,36 @@ export default class LocationSetMap extends Component {
 					showsMyLocationButton
 					showsUserLocation
 					mapPadding={{ top: 50, right: 0, bottom: 100, left: 20 }}
-				/>
-				<TouchableOpacity style={styles.overlay}>
-					<Button title="Set Home Location" />
-				</TouchableOpacity>
+				>
+					<Marker
+						title="Home"
+						draggable
+						onDragEnd={async (e) => {
+							console.log("dragEnd", e.nativeEvent.coordinate);
+							this.setState({ homeLoc: e.nativeEvent.coordinate });
+							await AsyncStorage.setItem(
+								"@user_input_home_location",
+								JSON.stringify(e.nativeEvent.coordinate)
+							);
+						}}
+						coordinate={this.state.homeLoc}
+						pinColor="rgb(255, 0, 0)"
+					/>
+					<Marker
+						title="Work"
+						draggable
+						onDragEnd={async (e) => {
+							console.log("dragEnd", e.nativeEvent.coordinate);
+							this.setState({ workLoc: e.nativeEvent.coordinate });
+							await AsyncStorage.setItem(
+								"@user_input_work_location",
+								JSON.stringify(e.nativeEvent.coordinate)
+							);
+						}}
+						coordinate={this.state.workLoc}
+						pinColor="rgb(0, 0, 255)"
+					/>
+				</MapView>
 			</View>
 		);
 	}
