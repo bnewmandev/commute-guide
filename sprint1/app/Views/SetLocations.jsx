@@ -2,10 +2,8 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
 import React, { Component } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import WeekdayPicker from "react-native-weekday-picker";
 import FlashMessage from "react-native-flash-message";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
 export default class SetLocations extends Component {
 	constructor(props) {
@@ -15,6 +13,15 @@ export default class SetLocations extends Component {
 			homeLocation: "",
 			workLocation: "",
 		};
+	}
+
+	componentDidMount() {
+		fetchLocations().then((data) => {
+			this.setState({
+				homeLocation: data.homeLocation,
+				workLocation: data.workLocation,
+			});
+		});
 	}
 
 	render() {
@@ -35,10 +42,7 @@ export default class SetLocations extends Component {
 					style={styles.input}
 					placeholder="Postcode"
 				/>
-				<Button
-					title="Update"
-					onPress={() => storeLocations(this.state, this.props)}
-				/>
+				<Button title="Update" onPress={() => storeLocations(this.state)} />
 				<StatusBar style="auto" />
 				<FlashMessage position="top" />
 			</View>
@@ -46,7 +50,7 @@ export default class SetLocations extends Component {
 	}
 }
 
-const storeLocations = async (state, props) => {
+const storeLocations = async (state) => {
 	const data = {
 		homeLocation: state.homeLocation,
 		workLocation: state.workLocation,
@@ -63,6 +67,11 @@ const storeLocations = async (state, props) => {
 			});
 		}
 	});
+};
+
+const fetchLocations = async () => {
+	const stringData = await AsyncStorage.getItem("@user_input_locations");
+	return stringData != null ? JSON.parse(stringData) : null;
 };
 
 const styles = StyleSheet.create({

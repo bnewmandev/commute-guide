@@ -4,6 +4,8 @@ import React, { Component } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import WeekdayPicker from "react-native-weekday-picker";
+import FlashMessage from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
 export default class SetTimes extends Component {
 	constructor(props) {
@@ -16,6 +18,16 @@ export default class SetTimes extends Component {
 			showPickerTwo: false,
 			days: { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 0, 0: 0 },
 		};
+	}
+
+	componentDidMount() {
+		fetchTimes().then((data) => {
+			this.setState({
+				timeOne: new Date(data.timeOne),
+				timeTwo: new Date(data.timeTwo),
+				days: data.days || { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 0, 0: 0 },
+			});
+		});
 	}
 
 	render() {
@@ -60,6 +72,7 @@ export default class SetTimes extends Component {
 					/>
 				)}
 				<StatusBar style="auto" />
+				<FlashMessage position="top" />
 			</View>
 		);
 	}
@@ -72,7 +85,22 @@ const storeTimes = async (state) => {
 		days: state.days,
 	};
 	const stringData = JSON.stringify(data);
-	await AsyncStorage.setItem("@user_input_times", stringData);
+	await AsyncStorage.setItem("@user_input_times", stringData, (error) => {
+		if (error) {
+			showMessage({
+				message: error.message,
+			});
+		} else {
+			showMessage({
+				message: "Times updated successfully",
+			});
+		}
+	});
+};
+
+const fetchTimes = async () => {
+	const stringData = await AsyncStorage.getItem("@user_input_times");
+	return stringData != null ? JSON.parse(stringData) : null;
 };
 
 const styles = StyleSheet.create({
