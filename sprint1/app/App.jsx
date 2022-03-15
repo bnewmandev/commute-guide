@@ -10,6 +10,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SetLocations from "./Views/SetLocations";
 import SetTimes from "./Views/SetTimes";
 import Home from "./Views/Home";
+import LocationSetMap from "./Views/LocationSetMap";
 
 export default class App extends Component {
 	constructor(props) {
@@ -23,6 +24,7 @@ export default class App extends Component {
 					<Stack.Screen name="Home" component={Home} />
 					<Stack.Screen name="Location Settings" component={SetLocations} />
 					<Stack.Screen name="Time Settings" component={SetTimes} />
+					<Stack.Screen name="Location Set Map" component={LocationSetMap} />
 				</Stack.Navigator>
 			</NavigationContainer>
 		);

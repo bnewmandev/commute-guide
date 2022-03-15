@@ -21,6 +21,12 @@ export default class Home extends Component {
 						onPress={() => this.props.navigation.navigate("Time Settings")}
 					/>
 				</View>
+				<View style={styles.button}>
+					<Button
+						title="Location Set Map (TEMP)"
+						onPress={() => this.props.navigation.navigate("Location Set Map")}
+					/>
+				</View>
 			</View>
 		);
 	}
