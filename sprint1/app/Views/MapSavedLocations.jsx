@@ -18,28 +18,22 @@ export default class LocationSetMap extends Component {
 			granted: false,
 			location: null,
 			mapRef: React.createRef(),
-			region: {
-				latitude: 0,
-				longitude: 0,
-				latitudeDelta: 0,
-				longitudeDelta: 0,
-			},
 			errorMsg: null,
 		};
 	}
 
 	componentDidMount() {
-		(async () => {
-			let { status } = await Location.requestForegroundPermissionsAsync();
-			if (status !== "granted") {
-				this.setState({ errorMsg: "Permission to access location was denied" });
-				return;
-			}
-
-			let location = await Location.getCurrentPositionAsync({});
-			console.log(location);
-			this.setState({ location: location });
-		})();
+		// (async () => {
+		// 	let { status } = await Location.requestForegroundPermissionsAsync();
+		// 	if (status !== "granted") {
+		// 		this.setState({ errorMsg: "Permission to access location was denied" });
+		// 		return;
+		// 	}
+		//
+		// 	let location = await Location.getCurrentPositionAsync({});
+		// 	console.log(location);
+		// 	this.setState({ location: location });
+		// })();
 	}
 
 	goToMyLocation() {
