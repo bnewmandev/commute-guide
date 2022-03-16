@@ -9,7 +9,7 @@ import {
 
 import { RequestParams } from "./types";
 
-import * as auth from "../authdata.json";
+import * as auth from "./authdata.json";
 
 const app = express();
 const client = new Client({});
