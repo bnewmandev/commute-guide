@@ -1,11 +1,18 @@
 # Commute Guide
 
-## Sprints
+## Front End
 
-### Sprint 1 - Goals
+- [x] The user should be able to add a home location
+- [x] The user should be able to add a work location
+- [x] The user should be able to select work times and days
+- [ ] Make directions API calls to server
+- [ ] Parse directions data from API response
+- [ ] Display directions
 
-Create an app with the following requirements:
+## Back End
 
-- The user should be able to add a home location
-- The user should be able to add a work location
-- The user should be able to select work times and days
+- [x] Basic authentication for testing purposes
+- [x] Forward API call to google maps directions API
+- [ ] Implement API rate limiting
+- [ ] User Authentication
+
